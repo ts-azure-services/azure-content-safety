@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Script to provision a new Azure Content Safety resource, and deploy a model
+#Script to provision a new Azure Content Safety resource...
 grn=$'\e[1;32m'
 end=$'\e[0m'
 
@@ -8,7 +8,7 @@ set -e
 
 # Start of script
 SECONDS=0
-printf "${grn}Starting creation of Azure Content Safety and model deployment.......${end}\n"
+printf "${grn}Starting creation of Azure Content Safety.......${end}\n"
 
 # Source subscription ID, and prep config file
 source sub.env
@@ -22,7 +22,7 @@ random_name_generator='/setup/name-generator/random_name.py'
 unique_name=$(python $PWD$random_name_generator)
 number=$[ ( $RANDOM % 10000 ) + 1 ]
 resourcegroup=$unique_name$number
-resourcetype=$unique_name$number'oai'
+resourcetype=$unique_name$number
 location='eastus'
 
 # Create a resource group
