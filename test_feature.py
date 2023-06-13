@@ -70,7 +70,7 @@ def analyze():
     if args.imagepath:
 
         # Build request
-        image_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "./samples/image_face.jpg"))
+        image_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "./samples/image.jpg"))
         with open(image_path, "rb") as file:
             my_file = file.read()
 
