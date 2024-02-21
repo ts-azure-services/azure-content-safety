@@ -1,5 +1,7 @@
 import os
 import argparse
+import ast
+from pprint import pprint as pp
 from azure.ai.contentsafety import ContentSafetyClient
 from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import HttpResponseError
@@ -7,22 +9,34 @@ from azure.ai.contentsafety.models import AnalyzeTextOptions, TextCategory, Anal
 from dotenv import load_dotenv
 
 
-def response_statement(response):
-    if response.hate_result:
-        print(f"Hate severity: {response.hate_result.severity}")
-    if response.self_harm_result:
-        print(f"Self-harm severity: {response.self_harm_result.severity}")
-    if response.sexual_result:
-        print(f"Sexual severity: {response.sexual_result.severity}")
-    if response.violence_result:
-        print(f"Violence severity: {response.violence_result.severity}")
+def analyze_text(client=None, textpath=None):
+    print(f"Text statement: {textpath}")
+    request = AnalyzeTextOptions(text=textpath, categories=[TextCategory.HATE,
+                                                        TextCategory.SELF_HARM,
+                                                        TextCategory.VIOLENCE,
+                                                        TextCategory.SEXUAL])
+    try:
+        response = client.analyze_text(request)
+    except HttpResponseError as e:
+        print("Analyze text failed.")
+        if e.error:
+            print(f"Error code: {e.error.code}")
+            print(f"Error message: {e.error.message}")
+            raise
+        print(e)
+        raise
+    if response:
+        # print(ast.literal_eval(response))
+        print(response)
 
 
-def analyze(filepath=None, textpath=None, imagepath=None):
-    # Create an Content Safety client
-    client = ContentSafetyClient(endpoint, AzureKeyCredential(key))
+def form_factor(client=None, filepath=None, textpath=None, imagepath=None):
+    """Analyze Azure AI content safety results with a text string, filepath or image"""
 
-    # Input: text, or file
+    # Input: text, file or image
+    if textpath:
+        analyze_text(client, textpath)
+
     if filepath:
         text_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "./samples/text.txt"))
         # Read sample data, and build request
@@ -31,26 +45,7 @@ def analyze(filepath=None, textpath=None, imagepath=None):
         # Create one string from the list of strings
         text_list = [x.replace('\n', '.') for x in text_list]
         text = " ".join(text_list)
-
-    if textpath:
-        print(f"Text statement: {text}")
-        request = AnalyzeTextOptions(text=text, categories=[TextCategory.HATE,
-                                                            TextCategory.SELF_HARM,
-                                                            TextCategory.VIOLENCE,
-                                                            TextCategory.SEXUAL])
-
-        try:
-            response = client.analyze_text(request)
-        except HttpResponseError as e:
-            print("Analyze text failed.")
-            if e.error:
-                print(f"Error code: {e.error.code}")
-                print(f"Error message: {e.error.message}")
-                raise
-            print(e)
-            raise
-        if response:
-            response_statement(response)
+        analyze_text(client, text)
 
     if imagepath:
         # Build request
@@ -66,7 +61,8 @@ def analyze(filepath=None, textpath=None, imagepath=None):
             print("Error message: {}".format(e.error.message))
             return
         if response:
-            response_statement(response)
+            print(response)
+            # print(ast.literal_eval(response))
 
 
 if __name__ == "__main__":
@@ -81,5 +77,8 @@ if __name__ == "__main__":
     load_dotenv('./variables.env')
     key, endpoint = os.environ["CONTENT_SAFETY_KEY"], os.environ["CONTENT_SAFETY_ENDPOINT"]
 
+    # Create an Content Safety client
+    client = ContentSafetyClient(endpoint, AzureKeyCredential(key))
+
     # Analyze content
-    analyze(filepath=args.filepath, textpath=args.text_string, imagepath=args.imagepath)
+    form_factor(client=client, filepath=args.filepath, textpath=args.text_string, imagepath=args.imagepath)

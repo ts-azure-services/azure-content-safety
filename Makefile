@@ -11,15 +11,18 @@ venv_setup:
 infra:
 	./setup/create_resources.sh
 	# Result: variables.env file created
+	# May take about 5 min for the key, endpoint to be active
 
-t_string:
-	.venv/bin/python ./default_moderation.py --text_string "I am an idiot"
-	.venv/bin/python ./default_moderation.py --text_string "You are an idiot"
+string1="I am an idiot"
+string2="You are an idiot"
+sample-string:
+	.venv/bin/python ./default_moderation.py --text_string $(string1)
+	.venv/bin/python ./default_moderation.py --text_string $(string2)
 
-t_.venv/bin/file:
+t_file:
 	.venv/bin/python ./default_moderation.py --filepath 
 
-i_.venv/bin/file:
+i_file:
 	.venv/bin/python ./default_moderation.py --imagepath
 
 test_all:
