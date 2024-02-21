@@ -1,25 +1,36 @@
+sub-init:
+	echo "SUB_ID=<input subscription_id>" > sub.env
+
 venv_setup:
-	#conda create -n content-safety python=3.10 -y; conda activate content-safety
-	pip install azure-ai-contentsafety
-	pip install python-dotenv
-	pip install flake8
+	rm -rf .venv
+	python3.11 -m venv .venv
+	.venv/bin/python -m pip install --upgrade pip
+	.venv/bin/python -m pip install -r ./requirements.txt
+	# source .tutorial_venv/bin/activate # not possible with Makefile
 
-initialize:
-	echo "SUB_ID=subscription_id" > sub.env
-
-create:
+infra:
 	./setup/create_resources.sh
 	# Result: variables.env file created
 
 t_string:
-	python ./test_feature.py --text_string "I am an idiot"
-	python ./test_feature.py --text_string "You are an idiot"
+	.venv/bin/python ./default_moderation.py --text_string "I am an idiot"
+	.venv/bin/python ./default_moderation.py --text_string "You are an idiot"
 
-t_file:
-	python ./test_feature.py --filepath 
+t_.venv/bin/file:
+	.venv/bin/python ./default_moderation.py --filepath 
 
-i_file:
-	python ./test_feature.py --imagepath
+i_.venv/bin/file:
+	.venv/bin/python ./default_moderation.py --imagepath
 
 test_all:
 	make t_string t_file i_file
+
+
+# Commit local branch changes
+branch=$(shell git symbolic-ref --short HEAD)
+now=$(shell date '+%F_%H:%M:%S' )
+git-push:
+	git add . && git commit -m "Changes as of $(now)" && git push -u origin $(branch)
+
+git-pull:
+	git pull origin $(branch)

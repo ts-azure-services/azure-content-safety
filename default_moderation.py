@@ -18,24 +18,12 @@ def response_statement(response):
         print(f"Violence severity: {response.violence_result.severity}")
 
 
-def analyze():
-    # Argument parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--text_string", "--verb", type=str)
-    parser.add_argument("--filepath", action='store_true', default=False)
-    parser.add_argument("--imagepath", action='store_true', default=False)
-    args = parser.parse_args()
-
-    # Load env variables
-    load_dotenv('./variables.env')
-    key, endpoint = os.environ["CONTENT_SAFETY_KEY"], os.environ["CONTENT_SAFETY_ENDPOINT"]
-
+def analyze(filepath=None, textpath=None, imagepath=None):
     # Create an Content Safety client
     client = ContentSafetyClient(endpoint, AzureKeyCredential(key))
 
     # Input: text, or file
-    text = None
-    if args.filepath:
+    if filepath:
         text_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "./samples/text.txt"))
         # Read sample data, and build request
         with open(text_path) as f:
@@ -44,10 +32,7 @@ def analyze():
         text_list = [x.replace('\n', '.') for x in text_list]
         text = " ".join(text_list)
 
-    if args.text_string:
-        text = args.text_string
-
-    if text:
+    if textpath:
         print(f"Text statement: {text}")
         request = AnalyzeTextOptions(text=text, categories=[TextCategory.HATE,
                                                             TextCategory.SELF_HARM,
@@ -67,8 +52,7 @@ def analyze():
         if response:
             response_statement(response)
 
-    if args.imagepath:
-
+    if imagepath:
         # Build request
         image_path = os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "./samples/image.jpg"))
         with open(image_path, "rb") as file:
@@ -86,4 +70,16 @@ def analyze():
 
 
 if __name__ == "__main__":
-    analyze()
+    # Argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--text_string", "--verb", type=str)
+    parser.add_argument("--filepath", action='store_true', default=False)
+    parser.add_argument("--imagepath", action='store_true', default=False)
+    args = parser.parse_args()
+
+    # Load env variables
+    load_dotenv('./variables.env')
+    key, endpoint = os.environ["CONTENT_SAFETY_KEY"], os.environ["CONTENT_SAFETY_ENDPOINT"]
+
+    # Analyze content
+    analyze(filepath=args.filepath, textpath=args.text_string, imagepath=args.imagepath)
