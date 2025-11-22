@@ -19,7 +19,7 @@ az account set -s $sub_id
 
 # Source unique name for RG, workspace creation
 random_name_generator='/setup/name-generator/random_name.py'
-unique_name=$(python $PWD$random_name_generator)
+unique_name=$(python3 $PWD$random_name_generator)
 number=$[ ( $RANDOM % 10000 ) + 1 ]
 resourcegroup=$unique_name$number
 resourcetype=$unique_name$number
