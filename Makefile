@@ -35,8 +35,9 @@ test-all:
 # Commit local branch changes
 branch=$(shell git symbolic-ref --short HEAD)
 now=$(shell date '+%F_%H:%M:%S' )
+
 git-push:
-	git add . && git commit -m "Changes as of $(now)" && git push -u origin $(branch)
+	@read -p "Enter commit message: " msg && git add . && git commit -m "$$msg" && git push -u origin $(branch)
 
 git-pull:
 	git pull origin $(branch)
