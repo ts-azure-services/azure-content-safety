@@ -9,3 +9,4 @@ A repo for Azure Content Safety resources.
 
 ## Observation
 - REST API Low = GUI High, and vice versa. Flagged with PG.
+- When you create this with an Azure OpenAI resource vs. an Azure AI Foundry resource, the responses seem a little inconsistent and unstable (for content filtering) with the former, especially with the Responses API.
